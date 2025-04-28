@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Dashboard{% endblock %}</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      padding-left: 250px;
+      background-color: #f8f9fa;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100vh;
+      background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+      color: white;
+      padding: 20px 0;
+      box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+    .brand {
+      padding: 0 20px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 20px;
+    }
+    .brand h3 {
+      color: white;
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav {
+      padding: 0 10px;
+    }
+    .nav-item {
+      margin: 2px 0;
+    }
+    .nav-link {
+      color: rgba(255, 255, 255, 0.9);
+      border-radius: 6px;
+      padding: 12px 15px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 500;
+    }
+    .nav-link i {
+      width: 20px;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+    /* Hover State */
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+    /* Active/Selected State */
+    .nav-link.active {
+      background: white;
+      color: #2c3e50;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .nav-link.active:hover {
+      background: white;
+      color: #2c3e50;
+    }
+    .main-content {
+      padding: 30px;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <!-- Left Vertical Sidebar -->
+  <div class="sidebar">
+    <!-- Brand Logo -->
+    <div class="brand">
+      <h3><i class="fa-brands fa-steam"></i> DevHub</h3>
+    </div>
+
+    <!-- Navigation Links -->
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link active" href="#" id="gerrit-link">
+          <i class="fas fa-code-branch"></i> Gerrit
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" id="build-link">
+          <i class="fas fa-cogs"></i> Build
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" id="delta-link">
+          <i class="fas fa-code-compare"></i> Delta
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" id="log-link">
+          <i class="fa-solid fa-chart-simple"></i> Log Analysis
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" id="doc-link">
+          <i class="fas fa-book"></i> Documentation
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Main Content Block -->
+  <div class="main-content">
+    {% block content %}{% endblock %}
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle (with Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- JavaScript to handle active state -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-link');
+      
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          // Remove active class from all links
+          navLinks.forEach(l => l.classList.remove('active'));
+          // Add active class to clicked link
+          this.classList.add('active');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

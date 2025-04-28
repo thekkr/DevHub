@@ -1,0 +1,49 @@
+<!-- dashboard/templates/dashboard/home.html -->
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+  <h2>Analytics Dashboard</h2>
+  <div class="row">
+    <!-- Container 1 -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Graph 1</h5>
+          <p class="card-text">Gerrit stats will go here.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Container 2 -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Graph 2</h5>
+          <p class="card-text">Build success/failure rates.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Container 3 -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Graph 3</h5>
+          <p class="card-text">Delta comparisons.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Container 4 -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Graph 4</h5>
+          <p class="card-text">Log analysis trends.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
