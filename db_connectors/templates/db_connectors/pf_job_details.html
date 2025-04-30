@@ -1,0 +1,176 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Header Section -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">
+      <i class="fas fa-tasks me-2"></i>PF Jobs Overview
+    </h2>
+    <a href="{% url 'dashboard-home' %}" class="btn btn-sm btn-outline-secondary">
+      <i class="fas fa-arrow-left me-1"></i> Back
+    </a>
+  </div>
+
+  <!-- 1xN Stats Cards (Single Row) -->
+  <div class="row mb-4">
+    <!-- Total Jobs Card -->
+    <div class="col-xl-2 col-md-4 col-6 mb-3">
+      <div class="card border-0 shadow-sm h-100 bg-light">
+        <div class="card-body text-center py-3">
+          <h6 class="text-muted mb-1"><small>TOTAL JOBS</small></h6>
+          <h3 class="mb-0">{{ total_jobs }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Running Jobs Card -->
+    <div class="col-xl-2 col-md-4 col-6 mb-3">
+      <div class="card border-0 shadow-sm h-100 bg-light">
+        <div class="card-body text-center py-3">
+          <h6 class="text-muted mb-1"><small>RUNNING</small></h6>
+          <h3 class="mb-0 text-success">{{ running_jobs_count }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Queued Jobs Card -->
+    <div class="col-xl-2 col-md-4 col-6 mb-3">
+      <div class="card border-0 shadow-sm h-100 bg-light">
+        <div class="card-body text-center py-3">
+          <h6 class="text-muted mb-1"><small>QUEUED</small></h6>
+          <h3 class="mb-0 text-warning">{{ queued_jobs_count }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Rate Card -->
+    <div class="col-xl-2 col-md-4 col-6 mb-3">
+      <div class="card border-0 shadow-sm h-100 bg-light">
+        <div class="card-body text-center py-3">
+          <h6 class="text-muted mb-1"><small>SUCCESS RATE</small></h6>
+          <h3 class="mb-0 text-info">{{ success_rate }}%</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Failures Card -->
+    <div class="col-xl-2 col-md-4 col-6 mb-3">
+      <div class="card border-0 shadow-sm h-100 bg-light">
+        <div class="card-body text-center py-3">
+          <h6 class="text-muted mb-1"><small>FAILURES</small></h6>
+          <h3 class="mb-0 text-danger">{{ failure_count }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Avg Runtime Card -->
+    <div class="col-xl-2 col-md-4 col-6 mb-3">
+      <div class="card border-0 shadow-sm h-100 bg-light">
+        <div class="card-body text-center py-3">
+          <h6 class="text-muted mb-1"><small>AVG RUNTIME</small></h6>
+          <h3 class="mb-0">{{ avg_runtime }}m</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jobs Table -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-sm table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Gerrit</th>
+              <th>Job Link</th>
+              <th>Status</th>
+              <th>Submission Time</th>
+              <th>Branch</th>
+              <th>Project</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in pf_jobs %}
+            <tr>
+              <!-- Gerrit Column -->
+              <td class="font-monospace">
+                <a href="https://gerrit.example.com/{{ job.gerrit }}" 
+                   target="_blank" 
+                   class="text-decoration-none text-primary">
+                  {{ job.gerrit|truncatechars:10 }}
+                </a>
+              </td>
+              
+              <!-- Job Link Column -->
+              <td>
+                <a href="{{ job.joblink }}" 
+                   target="_blank" 
+                   class="text-decoration-none text-nowrap">
+                  <i class="fas fa-external-link-alt me-1"></i>Open
+                </a>
+              </td>
+              
+              <!-- Status Column -->
+              <td>
+                <span class="badge rounded-pill py-1 px-2 
+                  {% if job.status == 'SUCCESS' %}bg-success
+                  {% elif job.status == 'FAILURE' %}bg-danger
+                  {% elif job.status == 'RUNNING' %}bg-warning
+                  {% elif job.status == 'QUEUED' %}bg-secondary
+                  {% else %}bg-info{% endif %}">
+                  {{ job.status }}
+                </span>
+              </td>
+              
+              <!-- Submission Time Column -->
+              <td class="text-nowrap">
+                {{ job.submissiontime|date:"Y-m-d H:i" }}
+              </td>
+              
+              <!-- Branch Column -->
+              <td>
+                <span class="badge bg-dark rounded-pill py-1">
+                  {{ job.branch }}
+                </span>
+              </td>
+              
+              <!-- Project Column -->
+              <td class="text-truncate" style="max-width: 150px;">
+                {{ job.project }}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-4 text-muted">
+                <i class="fas fa-database me-2"></i>No jobs found
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .card {
+    transition: all 0.2s ease;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  .table th {
+    white-space: nowrap;
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .table td {
+    vertical-align: middle;
+  }
+</style>
+{% endblock %}
