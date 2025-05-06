@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     
     'dashboard',
     'db_connectors.apps.DbConnectorsConfig',
+    'build',
 ]
 
 MIDDLEWARE = [

@@ -20,4 +20,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('dashboard.urls')),
     path('data/', include('db_connectors.urls')),
+    path('build/', include('build.urls')),
 ]
