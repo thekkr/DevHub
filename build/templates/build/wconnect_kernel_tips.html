@@ -1,0 +1,115 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Get WonNECT and Kernel Tips</h4>
+                </div>
+                <div class="card-body">
+                    <form id="tipsForm" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="build_id">Enter Build Identifier</label>
+                            <input type="text" class="form-control" id="build_id" name="build_id" 
+                                   placeholder="Meta Build ID / Vendor Build ID / AU Tag" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">
+                            <span id="submitText">Get Tips</span>
+                            <span id="loadingSpinner" class="spinner-border spinner-border-sm d-none"></span>
+                        </button>
+                    </form>
+                    
+                    <div id="resultsContainer" class="mt-4 d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5>Results for Build: <span id="resultsBuildId"></span></h5>
+                            <button id="exportExcel" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-file-export"></i> Export to Excel
+                            </button>
+                        </div>
+                        <div id="resultsTable" class="table-responsive"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('tipsForm');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const resultsTable = document.getElementById('resultsTable');
+    const resultsBuildId = document.getElementById('resultsBuildId');
+    const submitText = document.getElementById('submitText');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const exportBtn = document.getElementById('exportExcel');
+    let currentData = null;
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading state more prominently
+        submitText.textContent = "Processing...";
+        loadingSpinner.classList.remove('d-none');
+        form.querySelector('button').disabled = true;
+        resultsContainer.classList.add('d-none');
+        
+        // Add a minimum loading time (even if request finishes faster)
+        const minLoadingTime = 1500; // 1.5 seconds minimum
+        const startTime = Date.now();
+        
+        fetch("{% url 'get_wonnect_and_kernel_tips' %}", {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            // Ensure we wait the minimum time before proceeding
+            const elapsed = Date.now() - startTime;
+            const remainingTime = Math.max(0, minLoadingTime - elapsed);
+            return new Promise(resolve => {
+                setTimeout(() => resolve(response), remainingTime);
+            });
+        })
+        .then(response => response.json())
+        .then(data => {
+            currentData = data;
+            resultsBuildId.textContent = data.build_id;
+            resultsTable.innerHTML = data.table_html;
+            resultsContainer.classList.remove('d-none');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        })
+        .finally(() => {
+            submitText.textContent = "Get Tips";
+            loadingSpinner.classList.add('d-none');
+            form.querySelector('button').disabled = false;
+        });
+    });
+    
+    // ... rest of your JavaScript ...
+});
+</script>
+<style>
+    /* Add to your existing styles */
+    .spinner-border {
+        width: 1.2rem;
+        height: 1.2rem;
+        border-width: 0.2em;
+    }
+    .btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    #loadingSpinner {
+        margin-left: 8px;
+    }
+</style>
+{% endblock %}

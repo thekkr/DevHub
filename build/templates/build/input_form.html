@@ -1,0 +1,26 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Get Wonnect and Kernel Tips</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="build_id">Enter Build Identifier</label>
+                            <input type="text" class="form-control" id="build_id" name="build_id" 
+                                   placeholder="Meta Build ID / Vendor Build ID / AU Tag" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Get Tips</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

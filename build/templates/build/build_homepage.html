@@ -1,0 +1,51 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="my-4">Build Tools</h1>
+    <div class="row">
+        <!-- XR SPs Build Commands Card -->
+        <div class="col-md-6 mb-4">
+            <a href="{% url 'product_list' %}" class="text-decoration-none">
+                <div class="card h-100 product-card">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <h5 class="card-title mb-0 text-center">XR SPs Build Commands</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <!-- Get Wlan Tips Card -->
+        <div class="col-md-6 mb-4">
+            <a href="{% url 'get_wonnect_and_kernel_tips' %}" class="text-decoration-none">
+                <div class="card h-100 product-card">
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <h5 class="card-title mb-0 text-center">Get Wconnect & Kernel Tips</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .product-card {
+        transition: all 0.2s ease;
+        border: 1px solid rgba(0,0,0,0.1);
+        cursor: pointer;
+        height: 100px;  /* Reduced from min-height: 150px */
+    }
+    .product-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-color: #0d6efd;
+    }
+    .card-title {
+        color: #0d6efd;
+        font-size: 1rem;  /* Added to ensure text fits better */
+    }
+    .product-card:hover .card-title {
+        color: #0b5ed7;
+    }
+</style>
+{% endblock %}
