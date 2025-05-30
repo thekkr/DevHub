@@ -94,6 +94,43 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    exportBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    // Handle Excel export
+    exportBtn.addEventListener('click', function() {
+        if (!currentData) return;
+        
+        // Create a temporary form for export
+        const formData = new FormData();
+        formData.append('build_id', currentData.build_id);
+        formData.append('export_excel', 'true');
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        // Submit the export request
+        fetch("{% url 'get_wonnect_and_kernel_tips' %}", {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) return response.blob();
+            throw new Error('Export failed');
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `wonnect_tips_${currentData.build_id}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+        })
+        .catch(error => {
+            console.error('Export error:', error);
+            alert('Failed to export. Please try again.');
+        });
+    });
+});
     // ... rest of your JavaScript ...
 });
 </script>
