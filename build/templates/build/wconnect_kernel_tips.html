@@ -95,10 +95,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     exportBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    // Handle Excel export
-    exportBtn.addEventListener('click', function() {
-        if (!currentData) return;
+        e.preventDefault();
+        if (!currentData) {
+            alert('No data available to export. Please get tips first.');
+            return;
+        }
+        
+        // Show loading state for export
+        const originalText = exportBtn.innerHTML;
+        exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+        exportBtn.disabled = true;
         
         // Create a temporary form for export
         const formData = new FormData();
@@ -128,10 +134,12 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Export error:', error);
             alert('Failed to export. Please try again.');
+        })
+        .finally(() => {
+            exportBtn.innerHTML = originalText;
+            exportBtn.disabled = false;
         });
     });
-});
-    // ... rest of your JavaScript ...
 });
 </script>
 <style>

@@ -52,10 +52,32 @@ def build_homepage(request):
 
 def get_wonnect_and_kernel_tips(request):
     if request.method == 'POST':
-        time.sleep(2)
         build_id = request.POST.get('build_id', '')
         
-        # Sample dataframe creation
+        # Check if this is an export request
+        if request.POST.get('export_excel') == 'true':
+            # Try to get data from session
+            session_key = f'wonnect_tips_{build_id}'
+            if session_key in request.session:
+                df = pd.DataFrame(request.session[session_key])
+            else:
+                # If no session data, return error
+                return JsonResponse({'error': 'No data available to export'}, status=400)
+            
+            # Generate Excel export
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                df.to_excel(writer, index=False, sheet_name='Tips')
+            output.seek(0)
+            response = HttpResponse(
+                output.getvalue(),
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename="wonnect_tips_{build_id}.xlsx"'
+            return response
+        
+        # For regular requests, generate new data
+        time.sleep(2)
         data = {
             'Component': ['WonNECT', 'Kernel', 'Driver', 'Framework'],
             'Version': [f'1.{random.randint(0,5)}.{random.randint(0,9)}' for _ in range(4)],
@@ -70,18 +92,9 @@ def get_wonnect_and_kernel_tips(request):
         }
         df = pd.DataFrame(data)
         
-        # Handle Excel export request
-        if request.POST.get('export_excel') == 'true':
-            output = BytesIO()
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                df.to_excel(writer, index=False, sheet_name='Tips')
-            output.seek(0)
-            response = HttpResponse(
-                output.getvalue(),
-                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            )
-            response['Content-Disposition'] = f'attachment; filename="wonnect_tips_{build_id}.xlsx"'
-            return response
+        # Store the data in session for potential export
+        session_key = f'wonnect_tips_{build_id}'
+        request.session[session_key] = df.to_dict('records')
         
         # Return JSON for AJAX requests
         return JsonResponse({
