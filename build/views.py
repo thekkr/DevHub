@@ -52,54 +52,72 @@ def build_homepage(request):
 
 def get_wonnect_and_kernel_tips(request):
     if request.method == 'POST':
-        build_id = request.POST.get('build_id', '')
+        build_id = request.POST.get('build_id', '').strip()
         
-        # Check if this is an export request
-        if request.POST.get('export_excel') == 'true':
-            # Try to get data from session
-            session_key = f'wonnect_tips_{build_id}'
-            if session_key in request.session:
-                df = pd.DataFrame(request.session[session_key])
-            else:
-                # If no session data, return error
-                return JsonResponse({'error': 'No data available to export'}, status=400)
+        try:
+            # Validate build_id (add your actual validation logic here)
+            if not build_id:
+                raise ValueError("Build ID cannot be empty")
             
-            # Generate Excel export
-            output = BytesIO()
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                df.to_excel(writer, index=False, sheet_name='Tips')
-            output.seek(0)
-            response = HttpResponse(
-                output.getvalue(),
-                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            )
-            response['Content-Disposition'] = f'attachment; filename="wonnect_tips_{build_id}.xlsx"'
-            return response
-        
-        # For regular requests, generate new data
-        time.sleep(2)
-        data = {
-            'Component': ['WonNECT', 'Kernel', 'Driver', 'Framework'],
-            'Version': [f'1.{random.randint(0,5)}.{random.randint(0,9)}' for _ in range(4)],
-            'Status': random.choices(['Stable', 'Beta', 'Alpha'], k=4),
-            'Tips': [
-                'Use version 1.3+ for better performance',
-                'Apply patch XYZ for memory optimization',
-                'Update to latest driver for compatibility',
-                'Rebuild with flag --enable-feature-abc'
-            ],
-            'Last_Updated': pd.date_range(end=pd.Timestamp.today(), periods=4).strftime('%Y-%m-%d')
-        }
-        df = pd.DataFrame(data)
-        
-        # Store the data in session for potential export
-        session_key = f'wonnect_tips_{build_id}'
-        request.session[session_key] = df.to_dict('records')
-        
-        # Return JSON for AJAX requests
-        return JsonResponse({
-            'build_id': build_id,
-            'table_html': df.to_html(classes='table table-striped', index=False, justify='left')
-        })
+            # Example validation - you should replace with your actual checks
+            if len(build_id) < 3:
+                raise ValueError("Build ID is too short")
+                
+            # Check if this is an export request
+            if request.POST.get('export_excel') == 'true':
+                # Try to get data from session
+                session_key = f'wonnect_tips_{build_id}'
+                if session_key in request.session:
+                    df = pd.DataFrame(request.session[session_key])
+                else:
+                    raise ValueError("No data available to export")
+                
+                # Generate Excel export
+                output = BytesIO()
+                with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                    df.to_excel(writer, index=False, sheet_name='Tips')
+                output.seek(0)
+                response = HttpResponse(
+                    output.getvalue(),
+                    content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                )
+                response['Content-Disposition'] = f'attachment; filename="wonnect_tips_{build_id}.xlsx"'
+                return response
+            
+            # Simulate processing time
+            time.sleep(2)
+            
+            # For demo purposes - in real app you might check a database
+            # Here's where you'd add your actual logic to get tips
+            data = {
+                'Component': ['WonNECT', 'Kernel', 'Driver', 'Framework'],
+                'Version': [f'1.{random.randint(0,5)}.{random.randint(0,9)}' for _ in range(4)],
+                'Status': random.choices(['Stable', 'Beta', 'Alpha'], k=4),
+                'Tips': [
+                    'Use version 1.3+ for better performance',
+                    'Apply patch XYZ for memory optimization',
+                    'Update to latest driver for compatibility',
+                    'Rebuild with flag --enable-feature-abc'
+                ],
+                'Last_Updated': pd.date_range(end=pd.Timestamp.today(), periods=4).strftime('%Y-%m-%d')
+            }
+            df = pd.DataFrame(data)
+            
+            # Store the data in session for potential export
+            session_key = f'wonnect_tips_{build_id}'
+            request.session[session_key] = df.to_dict('records')
+            
+            # Return JSON for AJAX requests
+            return JsonResponse({
+                'status': 'success',
+                'build_id': build_id,
+                'table_html': df.to_html(classes='table table-striped', index=False, justify='left')
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
     
     return render(request, 'build/wconnect_kernel_tips.html')

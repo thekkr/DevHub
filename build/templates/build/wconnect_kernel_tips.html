@@ -6,7 +6,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h4>Get WonNECT and Kernel Tips</h4>
+                    <h4>Get Wonnect and Kernel Tips</h4>
                 </div>
                 <div class="card-body">
                     <form id="tipsForm" method="POST">
@@ -21,7 +21,15 @@
                             <span id="loadingSpinner" class="spinner-border spinner-border-sm d-none"></span>
                         </button>
                     </form>
-                    
+                    <div id="errorAlert" class="alert alert-danger mt-3 d-none animate__animated animate__fadeIn" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-circle me-3 fs-4"></i>
+                            <div>
+                                <h5 class="alert-heading mb-1">Error</h5>
+                                <p class="mb-0" id="errorMessage"></p>
+                            </div>
+                        </div>
+                    </div>
                     <div id="resultsContainer" class="mt-4 d-none">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5>Results for Build: <span id="resultsBuildId"></span></h5>
@@ -46,10 +54,37 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitText = document.getElementById('submitText');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const exportBtn = document.getElementById('exportExcel');
+    const errorAlert = document.getElementById('errorAlert');
+    const errorMessage = document.getElementById('errorMessage');
     let currentData = null;
     
+    function showError(message) {
+        const errorAlert = document.getElementById('errorAlert');
+        document.getElementById('errorMessage').textContent = message;
+
+        // Reset animation
+        errorAlert.classList.remove('animate__fadeIn');
+        void errorAlert.offsetWidth; // Trigger reflow
+
+        // Show with animation
+        errorAlert.classList.remove('d-none');
+        errorAlert.classList.add('animate__fadeIn');
+
+        // Smooth scroll to error
+        errorAlert.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest'
+        });
+    }
+
+    function hideError() {
+        const errorAlert = document.getElementById('errorAlert');
+        errorAlert.classList.add('d-none');
+    }
+
     form.addEventListener('submit', function(e) {
         e.preventDefault();
+        hideError();
         
         // Show loading state more prominently
         submitText.textContent = "Processing...";
@@ -76,8 +111,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => resolve(response), remainingTime);
             });
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.message || 'Request failed');
+                });
+            }
+            return response.json();
+        })
         .then(data => {
+            if (data.status === 'error') {
+                throw new Error(data.message);
+            }
+            
             currentData = data;
             resultsBuildId.textContent = data.build_id;
             resultsTable.innerHTML = data.table_html;
@@ -85,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+            showError(error.message || 'An error occurred. Please try again.');
         })
         .finally(() => {
             submitText.textContent = "Get Tips";
@@ -96,8 +142,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     exportBtn.addEventListener('click', function(e) {
         e.preventDefault();
+        hideError();
+        
         if (!currentData) {
-            alert('No data available to export. Please get tips first.');
+            showError('No data available to export. Please get tips first.');
             return;
         }
         
@@ -118,8 +166,12 @@ document.addEventListener('DOMContentLoaded', function() {
             body: formData
         })
         .then(response => {
-            if (response.ok) return response.blob();
-            throw new Error('Export failed');
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.message || 'Export failed');
+                });
+            }
+            return response.blob();
         })
         .then(blob => {
             const url = window.URL.createObjectURL(blob);
@@ -133,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Export error:', error);
-            alert('Failed to export. Please try again.');
+            showError(error.message || 'Failed to export. Please try again.');
         })
         .finally(() => {
             exportBtn.innerHTML = originalText;
@@ -155,6 +207,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     #loadingSpinner {
         margin-left: 8px;
+    }
+    #errorAlert {
+    border-left: 4px solid #dc3545;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    }
+    .animate__animated {
+        animation-duration: 0.3s;
     }
 </style>
 {% endblock %}
