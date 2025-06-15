@@ -1,0 +1,78 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background: #2c3e50; color: white;">
+            <h4 class="mb-0">
+                <i class="fas fa-warehouse me-2"></i>Failed Variants for {{ warehouse_name }}
+            </h4>
+            <a href="{% url 'db_connectors:failed_builds_dashboard' %}" class="btn btn-sm btn-light">
+                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th style="border-top: none; color: #495057;"><i class="fas fa-box-open me-2"></i>Variant</th>
+                            <th style="border-top: none; color: #495057;"><i class="fas fa-link me-2"></i>Workflow</th>
+                            <th style="border-top: none; color: #495057;"><i class="fas fa-calendar-day me-2"></i>Build Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for variant in variants %}
+                        <tr style="border-left: 4px solid {% cycle '#e74c3c' '#3498db' '#2ecc71' '#f39c12' %};">
+                            <td class="align-middle">
+                                {% comment %} <span class="badge bg-secondary me-2">{{ forloop.counter }}</span> {% endcomment %}
+                                {{ variant.variantname }}
+                            </td>
+                            <td class="align-middle">
+                                <a href="{{ variant.buildworkflowurl }}" target="_blank" class="text-primary">
+                                    <i class="fas fa-external-link-alt me-1"></i> View Workflow
+                                </a>
+                            </td>
+                            <td class="align-middle">
+                                <span class="text-muted">{{ variant.builddate }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .table th {
+        font-weight: 600;
+        border-top: none;
+        border-bottom: 2px solid #dee2e6;
+    }
+    .table td {
+        border-top: 1px solid #e9ecef;
+        vertical-align: middle;
+    }
+    tr:hover td {
+        background-color: #f8f9fa;
+    }
+    .badge {
+        font-weight: 500;
+        padding: 5px 8px;
+        border-radius: 4px;
+    }
+    .text-primary {
+        color: #3498db !important;
+    }
+</style>
+{% endblock %}

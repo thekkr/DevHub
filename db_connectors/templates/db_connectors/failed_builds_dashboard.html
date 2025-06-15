@@ -1,0 +1,96 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background: #2c3e50; color: white;">
+            <h4 class="mb-0">
+                <i class="fas fa-warehouse me-2"></i>Failed Builds by Warehouse
+            </h4>
+            <a href="{% url 'dashboard-home' %}" class="btn btn-sm btn-light">
+                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="failedBuildsTable">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th style="border-top: none; color: #495057;">
+                                <i class="fas fa-building me-2"></i>Warehouse
+                            </th>
+                            <th style="border-top: none; color: #495057;">
+                                <i class="fas fa-exclamation-circle me-2"></i>Failures
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for warehouse in warehouse_failures %}
+                        <tr class="warehouse-row" 
+                            data-warehouse-id="{{ warehouse.warehouseid }}"
+                            style="cursor: pointer; border-left: 4px solid #6c757d;">
+                            <td class="align-middle">
+                                <strong>{{ warehouse.warehousename }}</strong>
+                            </td>
+                            <td class="align-middle">
+                                <span><strong>{{ warehouse.failure_count }}</strong></span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const warehouseRows = document.querySelectorAll('.warehouse-row');
+    
+    warehouseRows.forEach(row => {
+        row.addEventListener('click', function() {
+            const warehouseId = this.getAttribute('data-warehouse-id');
+            window.location.href = `{% url 'db_connectors:warehouse_variants' '000' %}`.replace('000', warehouseId);
+        });
+        
+        // Smooth hover effect
+        row.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#f8f9fa';
+        });
+        row.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '';
+        });
+    });
+});
+</script>
+
+<style>
+    .card {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    #failedBuildsTable {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    #failedBuildsTable th {
+        font-weight: 600;
+        border-top: none;
+        border-bottom: 2px solid #dee2e6;
+    }
+    #failedBuildsTable td {
+        border-top: 1px solid #e9ecef;
+        vertical-align: middle;
+        transition: background-color 0.2s ease;
+    }
+    .badge {
+        font-weight: 500;
+        padding: 5px 10px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        background-color: #6c757d;
+    }
+</style>
+{% endblock %}
